@@ -5,6 +5,8 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::time::Duration;
 use std::time::Instant;
+use std::collections::HashMap;
+
 
 fn lua_wait_func(_lua: &Lua, seconds: LuaNumber) -> Result<(), LuaError> {
 
@@ -18,7 +20,28 @@ fn lua_wait_func(_lua: &Lua, seconds: LuaNumber) -> Result<(), LuaError> {
 	Ok(())
 }
 
-fn run<'lua>(raylib: &mut RaylibHandle, thread: RaylibThread, lua: &Lua, script_content: String) -> Result<(), LuaError> {
+struct Bee2D {
+
+}
+
+// we start by modeling our data, not our behavior.
+
+fn start() {
+	
+}
+
+fn update() {
+
+}
+
+fn draw() {
+
+}
+
+
+
+
+fn run(raylib: &mut RaylibHandle, thread: RaylibThread, lua: &Lua, script_content: String) -> Result<(), LuaError> {
 
 	lua.load(&script_content).exec()?;
 
@@ -28,6 +51,19 @@ fn run<'lua>(raylib: &mut RaylibHandle, thread: RaylibThread, lua: &Lua, script_
 	for pair in start_callbacks.pairs::<LuaNumber, LuaFunction>() {
 		let (_, func) = pair?;
 		func.call(())?;
+	}
+
+	// could we *please* rewrite your code?
+	// this is insanely messy.
+	let mut texture_cache: HashMap<LuaString, Texture2D> = HashMap::new();
+
+	let texture_load_cache: LuaTable = globals.get("texture_load_cache")?;
+	for pair in texture_load_cache.pairs::<LuaNumber, LuaString>() {
+		let (_, tex_str) = pair?;
+
+		let texture: Texture2D = raylib.load_texture(&thread, tex_str.to_str()?).unwrap();
+
+		texture_cache.insert(tex_str, texture); 
 	}
 
 	let mut last_time = Instant::now();
@@ -87,26 +123,38 @@ fn run<'lua>(raylib: &mut RaylibHandle, thread: RaylibThread, lua: &Lua, script_
 
 		for pair in global_tex_storage.pairs::<LuaNumber, LuaTable>() {
 			let (key, tex_info) = pair?;
-
-			
-			let x: LuaNumber = tex_info.get("x")?;
-			let y: LuaNumber = tex_info.get("y")?;
-			let scale = tex_info.get("scale")?;
-			let rotation = tex_info.get("rotation")?;
-			let color: LuaTable = tex_info.get("color")?;
-
-			let r: LuaNumber = color.get(1)?;
-			let g: LuaNumber = color.get(2)?;
-			let b: LuaNumber = color.get(3)?;
-			let a: LuaNumber = color.get(4)?;
-
-			let newColor = Color::new(r as u8, g as u8, b as u8, a as u8);
-			
 			let tex_str: LuaString = tex_info.get("texture")?;
-			
-			let texture: Texture2D = draw_handle.load_texture(&thread, tex_str.to_str()?).unwrap();
-			let position : &mut Vector2 = &mut Vector2::new(x as f32,y as f32);
-			draw_handle.draw_texture_ex(texture, *position, rotation, scale, newColor)
+
+			if texture_cache.get(&tex_str).is_none() {
+				continue;
+			}
+
+			if let Some(texture) = texture_cache.get(&tex_str) {
+				// texture is a Texture2D here, not the option, because this code only runs when the pattern on the 'let'
+				// matches.
+
+				// put your code in here.
+
+				let x: LuaNumber = tex_info.get("x")?;
+				let y: LuaNumber = tex_info.get("y")?;
+				let scale = tex_info.get("scale")?;
+				let rotation = tex_info.get("rotation")?;
+				let color: LuaTable = tex_info.get("color")?;
+
+				let r: LuaNumber = color.get(1)?;
+				let g: LuaNumber = color.get(2)?;
+				let b: LuaNumber = color.get(3)?;
+				let a: LuaNumber = color.get(4)?;
+
+				let new_color = Color::new(r as u8, g as u8, b as u8, a as u8);
+				
+				let position : &mut Vector2 = &mut Vector2::new(x as f32,y as f32);
+
+				
+
+				draw_handle.draw_texture_ex(texture, *position, rotation, scale, new_color)
+			}
+
 		}
 
 		for pair in global_draw_storage.pairs::<LuaNumber, LuaTable>() {
@@ -125,9 +173,9 @@ fn run<'lua>(raylib: &mut RaylibHandle, thread: RaylibThread, lua: &Lua, script_
 				let b: LuaNumber = color.get(3)?;
 				let a: LuaNumber = color.get(4)?;
 
-				let newColor = Color::new(r as u8, g as u8, b as u8, a as u8);
+				let new_color = Color::new(r as u8, g as u8, b as u8, a as u8);
 
-				draw_handle.draw_rectangle(x as i32, y as i32, width as i32, height as i32, newColor);
+				draw_handle.draw_rectangle(x as i32, y as i32, width as i32, height as i32, new_color);
 			}
 
 			
@@ -141,7 +189,6 @@ fn run<'lua>(raylib: &mut RaylibHandle, thread: RaylibThread, lua: &Lua, script_
     Ok(())
 }
 
-
 fn main() -> LuaResult<()> {
 	let (raylib, thread) = raylib::init()
 		.size(800, 800)
@@ -154,6 +201,8 @@ fn main() -> LuaResult<()> {
 	
 	let bee2d = lua.create_table()?;
 
+	bee2d.set("GLOBAL_STORAGE", lua.create_table()?)?;
+
 	lua.globals().set("_bee2dHeight", 800)?;
 	lua.globals().set("_bee2dWidth", 800)?;
 	lua.globals().set("_bee2dTitle", "Bee2D")?;
@@ -164,9 +213,10 @@ fn main() -> LuaResult<()> {
 
 	lua.globals().set("update_callbacks", lua.create_table()?)?;
 	lua.globals().set("draw_callbacks", lua.create_table()?)?;
-	lua.globals().set("start_callbacks", lua.create_table()?)?;
+	lua.globals().set("start_callbacks", lua.create_table()?)?;	
 	lua.globals().set("global_draw_storage", lua.create_table()?)?;
 	lua.globals().set("global_tex_storage", lua.create_table()?)?;
+	lua.globals().set("texture_load_cache", lua.create_table()?)?;
 
 	bee2d.set("bindToStart", lua.create_function_mut({
 		|_lua: &Lua, func: LuaFunction| { 
@@ -221,6 +271,20 @@ fn main() -> LuaResult<()> {
 			Ok(())
 		}
 	}).expect("Failed to set global function"))?;
+
+	bee2d.set("loadTexture", lua.create_function_mut({
+
+		|_lua: &Lua, texturestr: LuaString| { 
+			let globals = _lua.globals();
+			let texture_load_cache: LuaTable = globals.get("texture_load_cache")?;
+			let next_index = texture_load_cache.len()? + 1;
+
+			texture_load_cache.set(next_index, texturestr)?;
+
+			Ok(())
+		}
+	}).expect("Failed to set global function"))?;
+		
 
 	bee2d.set("drawTexture", lua.create_function_mut({
 
