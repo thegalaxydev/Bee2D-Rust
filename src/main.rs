@@ -7,6 +7,9 @@ use std::time::Duration;
 use std::time::Instant;
 use std::collections::HashMap;
 
+mod math;
+mod lune;
+
 
 fn lua_wait_func(_lua: &Lua, seconds: LuaNumber) -> Result<(), LuaError> {
 
