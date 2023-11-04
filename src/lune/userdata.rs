@@ -92,6 +92,29 @@ where
     })
 }
 
+pub fn userdata_impl_mul<D>(_: &Lua, datatype: &D, rhs: LuaValue) -> LuaResult<D>
+where
+    D: LuaUserData + ops::Mul<D, Output = D> + Copy + 'static,
+{
+    match &rhs {
+        LuaValue::UserData(ud) => {
+            if let Ok(other) = ud.borrow::<D>() {
+                return Ok(*datatype * *other);
+            }
+        }
+        _ => {}
+    };
+    Err(LuaError::FromLuaConversionError {
+        from: rhs.type_name(),
+        to: type_name::<D>(),
+        message: Some(format!(
+            "Expected userdata of type {}, got {}",
+            type_name::<D>(),
+            rhs.type_name()
+        )),
+    })
+}
+
 pub fn userdata_impl_mul_i32<D>(_: &Lua, datatype: &D, rhs: LuaValue) -> LuaResult<D>
 where
     D: LuaUserData + ops::Mul<D, Output = D> + ops::Mul<i32, Output = D> + Copy + 'static,
@@ -111,6 +134,29 @@ where
         to: type_name::<D>(),
         message: Some(format!(
             "Expected {} or number, got {}",
+            type_name::<D>(),
+            rhs.type_name()
+        )),
+    })
+}
+
+pub fn userdata_impl_div<D>(_: &Lua, datatype: &D, rhs: LuaValue) -> LuaResult<D>
+where
+    D: LuaUserData + ops::Div<D, Output = D> + Copy + 'static,
+{
+    match &rhs {
+        LuaValue::UserData(ud) => {
+            if let Ok(other) = ud.borrow::<D>() {
+                return Ok(*datatype / *other);
+            }
+        }
+        _ => {}
+    };
+    Err(LuaError::FromLuaConversionError {
+        from: rhs.type_name(),
+        to: type_name::<D>(),
+        message: Some(format!(
+            "Expected userdata of type {}, got {}",
             type_name::<D>(),
             rhs.type_name()
         )),

@@ -7,7 +7,7 @@ use crate::lune::exports::*;
 use crate::lune::userdata::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Matrix3 {
+pub struct Matrix3 {
     m00: f32, m01: f32, m02: f32,
     m10: f32, m11: f32, m12: f32,
     m20: f32, m21: f32, m22: f32,
@@ -99,12 +99,13 @@ impl LuaUserData for Matrix3 {
         methods.add_meta_method(LuaMetaMethod::ToString, userdata_impl_to_string);
         methods.add_meta_method(LuaMetaMethod::Add, userdata_impl_add);
         methods.add_meta_method(LuaMetaMethod::Sub, userdata_impl_sub);
+        methods.add_meta_method(LuaMetaMethod::Mul, userdata_impl_mul);
     }
 }
 
 impl fmt::Display for Matrix3 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Matrix3({}, {}, {}, {}, {}, {}, {}, {}, {})", self.m00, self.m01, self.m02, self.m10, self.m11, self.m12, self.m20, self.m21, self.m22)
+        write!(f, "Matrix3 {{\n\t{}, {}, {},\n\t{}, {}, {},\n\t{}, {}, {}\n}}", self.m00, self.m01, self.m02, self.m10, self.m11, self.m12, self.m20, self.m21, self.m22)
     }
 }
 

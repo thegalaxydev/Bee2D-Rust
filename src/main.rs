@@ -214,6 +214,11 @@ fn main() -> LuaResult<()> {
 	bee2d.set("width", 800)?;
 	bee2d.set("title", "Bee2D")?;
 
+	for pair in math::module(&lua)?.pairs::<LuaString, LuaTable>() {
+		let (key, value) = pair?;
+		lua.globals().set(key, value)?;
+	}
+
 	lua.globals().set("update_callbacks", lua.create_table()?)?;
 	lua.globals().set("draw_callbacks", lua.create_table()?)?;
 	lua.globals().set("start_callbacks", lua.create_table()?)?;	
