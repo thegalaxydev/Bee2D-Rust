@@ -13,6 +13,16 @@ pub struct Matrix3 {
     m20: f32, m21: f32, m22: f32,
 }
 
+impl Matrix3 {
+    pub fn identity() -> Matrix3 {
+        Matrix3 {
+            m00: 1.0, m01: 0.0, m02: 0.0,
+            m10: 0.0, m11: 1.0, m12: 0.0,
+            m20: 0.0, m21: 0.0, m22: 1.0,
+        }
+    }
+}
+
 impl LuaExportsTable<'_> for Matrix3 {
     const EXPORT_NAME: &'static str = "Matrix3";
 

@@ -124,10 +124,17 @@ impl LuaUserData for Vector2 {
                         })
                     }
                 },
+                LuaValue::Integer(i) => {
+                    let factor = i as f32;
+                    Ok(Vector2 {
+                        x: this.x * factor,
+                        y: this.y * factor,
+                    })
+                },
                 _ => {
                     Err(LuaError::FromLuaConversionError {
-                        from: "Number or UserData",
-                        to: "Vector2 or Number",
+                        from: value.type_name(),
+                        to: "f32 or Vector2",
                         message: None,
                     })
                 }
@@ -146,6 +153,13 @@ impl LuaUserData for Vector2 {
                     } else {
                         Err(LuaError::RuntimeError("attempt to divide by zero".into()))
                     }
+                },
+                LuaValue::Integer(i) => {
+                    let factor = i as f32;
+                    Ok(Vector2 {
+                        x: this.x / factor,
+                        y: this.y / factor,
+                    })
                 },
                 LuaValue::UserData(ud) => {
                     if let Ok(rhs) = ud.borrow::<Vector2>() {
