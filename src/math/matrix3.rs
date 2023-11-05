@@ -8,9 +8,9 @@ use crate::lune::userdata::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Matrix3 {
-    m00: f32, m01: f32, m02: f32,
-    m10: f32, m11: f32, m12: f32,
-    m20: f32, m21: f32, m22: f32,
+    pub m00: f32, pub m01: f32, pub m02: f32,
+    pub m10: f32, pub m11: f32, pub m12: f32,
+    pub m20: f32, pub m21: f32, pub m22: f32,
 }
 
 impl Matrix3 {
@@ -21,6 +21,17 @@ impl Matrix3 {
             m20: 0.0, m21: 0.0, m22: 1.0,
         }
     }
+
+    // returns a base rotation matrix 
+    pub fn get_rotation(&self) -> Matrix3 {
+        Matrix3 {
+            m00: 0.0, m01: 0.0, m02: 0.0,
+            m10: 0.0, m11: 0.0, m12: 0.0,
+            m20: 0.0, m21: 0.0, m22: 0.0,
+
+        }
+    }
+    
 }
 
 impl LuaExportsTable<'_> for Matrix3 {

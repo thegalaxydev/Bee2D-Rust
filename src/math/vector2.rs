@@ -13,6 +13,20 @@ pub struct Vector2 {
     y: f32,
 }
 
+impl Vector2 {
+    pub fn new(x: f32, y: f32) -> Vector2 {
+        Vector2 { x, y }
+    }
+
+    pub fn get_x(&self) -> f32 {
+        self.x
+    }
+
+    pub fn get_y(&self) -> f32 {
+        self.y
+    }
+}
+
 impl LuaExportsTable<'_> for Vector2 {
     const EXPORT_NAME: &'static str = "Vector2";
 

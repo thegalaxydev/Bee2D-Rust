@@ -181,14 +181,7 @@ fn run(raylib: &mut RaylibHandle, thread: RaylibThread, lua: &Lua, script_conten
 
 				draw_handle.draw_rectangle(x as i32, y as i32, width as i32, height as i32, new_color);
 			}
-
-			
-			
 		}
-
-		
-		
-		
 	}
     Ok(())
 }
@@ -216,6 +209,11 @@ fn main() -> LuaResult<()> {
 	bee2d.set("title", "Bee2D")?;
 
 	for pair in math::module(&lua)?.pairs::<LuaString, LuaTable>() {
+		let (key, value) = pair?;
+		lua.globals().set(key, value)?;
+	}
+
+	for pair in engine::module(&lua)?.pairs::<LuaString, LuaTable>() {
 		let (key, value) = pair?;
 		lua.globals().set(key, value)?;
 	}

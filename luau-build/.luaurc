@@ -2,5 +2,5 @@
 	"languageMode": "nonstrict",
 	"lint": { "*": true, "LocalUnused": false },
 	"lintErrors": true,
-	"globals": ["Bee2D", "wait", "Matrix3", "Vector2"] 
+	"globals": ["Bee2D", "wait", "Matrix3", "Vector2", "GameObject"] 
 }

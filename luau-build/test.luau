@@ -1,18 +1,10 @@
+local object = GameObject.new("Test")
+local object2 = GameObject.new("Test2")
 
-Bee2D.setTitle("Test")
-Bee2D.loadTexture("test.png")
+object.Transform.LocalPosition = Vector2.new(5, 5)
 
-local testVector = Vector2.new(1, 1)
-
-Bee2D.bindToDraw(function()
-    Bee2D.drawTexture("test.png", 0,0, 0, 1, {255,255,255,255})
-
-    Bee2D.drawRectangle(0,0, 100, 100, {255,0,0,255})
-end)
+object2.Transform.Parent = object.Transform
+object2.Transform.LocalPosition = Vector2.new(5, 5)
 
 
-local test = Vector2.new(5,20)
-print(test.Magnitude)
-
-
-print(Matrix3.new(1,2,3,4,5,6,7,8,9) * Matrix3.new(1,2,3,4,5,6,7,8,9))
+print(object.Transform.LocalPosition)

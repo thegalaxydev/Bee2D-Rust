@@ -9,4 +9,3 @@ edition = "2021"
 mlua = { version = "0.9.1", features = ["luau", "luau-jit", "serialize", "async"] }
 raylib = { version = "3.7" }
 
-
